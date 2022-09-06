@@ -5,6 +5,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "StealthGame/InventorySystem/InventoryComponent.h"
+#include "StealthGame/InventorySystem/InventoryWidget.h"
 // Sets default values
 ACharacterBase::ACharacterBase()
 {
@@ -27,6 +29,8 @@ ACharacterBase::ACharacterBase()
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
 	CameraComp->SetupAttachment(SpringArmComp);
 	CameraComp->bUsePawnControlRotation = false;
+
+	m_InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
 
 }
 
@@ -58,6 +62,21 @@ void ACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 	PlayerInputComponent->BindAxis("Turn Right/Left Mouse", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("Look Up/Down Mouse", this, &APawn::AddControllerPitchInput);
+}
+void ACharacterBase::setInventoryWidget(UInventoryWidget* InventoryWidget)
+{
+	if (InventoryWidget)
+	{
+		m_InventoryWidget = InventoryWidget;
+	}
+}
+UInventoryWidget* ACharacterBase::getInventoryWidget()
+{
+	return m_InventoryWidget;
+}
+UInventoryComponent* ACharacterBase::getInventoryComponent()
+{
+	return m_InventoryComponent;
 }
 void ACharacterBase::MoveForward(float Value)
 {

@@ -17,9 +17,24 @@ class STEALTHGAME_API ACharacterBase : public ACharacter
 public:
 	// Sets default values for this character's properties
 	ACharacterBase();
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	//Getters and setters.
+	 void setInventoryWidget(class UInventoryWidget* InventoryWidget);
+	 class UInventoryWidget* getInventoryWidget();
+	 //
+
+	 class UInventoryComponent* getInventoryComponent();
+
+
 
 protected:
-
+	
+	//Components
 	// 3rd person SpringArm
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* SpringArmComp;
@@ -27,21 +42,21 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* CameraComp;
 
+	UPROPERTY(VisibleAnywhere)
+		class UInventoryComponent* m_InventoryComponent{ nullptr };
+	//end of components.
+
+	UPROPERTY()
+		class UInventoryWidget* m_InventoryWidget{ nullptr };
+
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
 
 	/** Called for side to side input */
 	void MoveRight(float Value);
 
-	void test(float value);
+	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 };
