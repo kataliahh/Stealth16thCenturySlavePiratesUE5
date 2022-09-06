@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "deadlymaze_ue5GameModeBase.generated.h"
+#include "StealthGameModeBase.generated.h"
 
 /**
  * 
  */
-UCLASS()
-class DEADLYMAZE_UE5_API Adeadlymaze_ue5GameModeBase : public AGameModeBase
+UCLASS(minimalapi)
+class AStealthGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 	

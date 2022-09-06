@@ -10,7 +10,7 @@ class UCameraComponent;
 class USpringArmComponent;
 
 UCLASS()
-class DEADLYMAZE_UE5_API ACharacterBase : public ACharacter
+class STEALTHGAME_API ACharacterBase : public ACharacter
 {
 	GENERATED_BODY()
 

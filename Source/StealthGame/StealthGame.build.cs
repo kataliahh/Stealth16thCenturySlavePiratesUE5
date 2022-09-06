@@ -2,9 +2,9 @@
 
 using UnrealBuildTool;
 
-public class deadlymaze_ue5 : ModuleRules
+public class StealthGame : ModuleRules
 {
-	public deadlymaze_ue5(ReadOnlyTargetRules Target) : base(Target)
+	public StealthGame(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
