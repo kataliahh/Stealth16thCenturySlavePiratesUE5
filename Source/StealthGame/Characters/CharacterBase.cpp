@@ -7,10 +7,11 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "StealthGame/InventorySystem/InventoryComponent.h"
 #include "StealthGame/InventorySystem/InventoryWidget.h"
+#include "StealthGame/MagicSystem/MagicComponent.h"
 // Sets default values
 ACharacterBase::ACharacterBase()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
@@ -22,16 +23,17 @@ ACharacterBase::ACharacterBase()
 	GetCharacterMovement()->bOrientRotationToMovement = true;			 // Character moves in the direction of input...	
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
 
-	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");
-	SpringArmComp->SetupAttachment(RootComponent);
-	SpringArmComp->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+	m_SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("m_SpringArmComp");
+	m_SpringArmComp->SetupAttachment(RootComponent);
+	m_SpringArmComp->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 
-	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
-	CameraComp->SetupAttachment(SpringArmComp);
-	CameraComp->bUsePawnControlRotation = false;
+	m_CameraComp = CreateDefaultSubobject<UCameraComponent>("m_CameraComp");
+	m_CameraComp->SetupAttachment(m_SpringArmComp);
+	m_CameraComp->bUsePawnControlRotation = false;
 
 	m_InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
-
+	//
+	m_MagicComponent = CreateDefaultSubobject<UMagicComponent>(TEXT("MagicComponent"));
 }
 
 
@@ -62,21 +64,32 @@ void ACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 	PlayerInputComponent->BindAxis("Turn Right/Left Mouse", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("Look Up/Down Mouse", this, &APawn::AddControllerPitchInput);
+	PlayerInputComponent->BindAction(TEXT("Lift/Drop"), IE_Pressed, this, &ThisClass::startLiftingProcess);
+	PlayerInputComponent->BindAction(TEXT("Lift/Drop"), IE_Released, this, &ThisClass::callDropObject);
 }
-void ACharacterBase::setInventoryWidget(UInventoryWidget* InventoryWidget)
+//this function is responsible to call functions of m_MagicComponent that are related to lifting.
+void ACharacterBase::startLiftingProcess()
 {
-	if (InventoryWidget)
+	if (m_MagicComponent)
 	{
-		m_InventoryWidget = InventoryWidget;
+		AActor* ActorToLevitate{ m_MagicComponent->findObjectToLevitate(this) };
+		if (ActorToLevitate)
+		{
+				FVector LevitatingDirection{ ActorToLevitate->GetActorUpVector() };
+				FVector LevitatingLocation{ ActorToLevitate->GetActorLocation() + (LevitatingDirection * m_LiftHeight) };
+				m_MagicComponent->setLevitatingValues(ActorToLevitate, LevitatingLocation);
+		}
+
 	}
+	else
+		UE_LOG(LogTemp, Warning, TEXT("m_MagicComponent is null(CharacterBase::callfindObjectToLevitate)"));
 }
-UInventoryWidget* ACharacterBase::getInventoryWidget()
+void ACharacterBase::callDropObject()
 {
-	return m_InventoryWidget;
-}
-UInventoryComponent* ACharacterBase::getInventoryComponent()
-{
-	return m_InventoryComponent;
+	if (m_MagicComponent)
+	{
+		m_MagicComponent->dropObject();
+	}
 }
 void ACharacterBase::MoveForward(float Value)
 {
@@ -105,7 +118,25 @@ void ACharacterBase::MoveRight(float Value)
 		AddMovementInput(Direction, Value);
 	}
 }
-
+void ACharacterBase::setInventoryWidget(UInventoryWidget* InventoryWidget)
+{
+	if (InventoryWidget)
+	{
+		m_InventoryWidget = InventoryWidget;
+	}
+}
+UInventoryWidget* ACharacterBase::getInventoryWidget()
+{
+	return m_InventoryWidget;
+}
+UInventoryComponent* ACharacterBase::getInventoryComponent()
+{
+	return m_InventoryComponent;
+}
+UCameraComponent* ACharacterBase::getCameraComponent()
+{
+	return m_CameraComp;
+}
 
 
 

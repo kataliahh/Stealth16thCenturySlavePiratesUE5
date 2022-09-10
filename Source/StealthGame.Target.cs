@@ -10,5 +10,7 @@ public class StealthGameTarget : TargetRules
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
 		ExtraModuleNames.AddRange( new string[] { "StealthGame" } );
+		bUseUnityBuild = false;
+		bUsePCHFiles = false;
 	}
 }

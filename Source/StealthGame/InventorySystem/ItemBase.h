@@ -10,6 +10,7 @@
  *
  */
 class UInventoryComponent;
+class UTexture2D;
 
 
 UCLASS(Abstract, Blueprintable, BlueprintType, DefaultToInstanced, EditInLineNew)
@@ -39,7 +40,7 @@ public:
 	//
 	FORCEINLINE FString GetName() const { return m_DisplayName; }
 	//
-	UTexture2D* GetThumbnail() const;
+	class UTexture2D* GetThumbnail() const;
 
 	/*when we want to convert a slot with item to an
 	empty slot we will call this(usually instead of removing the item completely).*/
