@@ -8,7 +8,6 @@
 #include "StealthGame/InventorySystem/InventoryComponent.h"
 #include "StealthGame/InventorySystem/InventoryWidget.h"
 #include "StealthGame/MagicSystem/MagicComponent.h"
-#include "StealthGame/MagicSystem/MagicalActor.h"
 // Sets default values
 ACharacterBase::ACharacterBase()
 {
@@ -42,7 +41,7 @@ ACharacterBase::ACharacterBase()
 void ACharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 }
 
 // Called every frame
@@ -67,26 +66,23 @@ void ACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAxis("Look Up/Down Mouse", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAction(TEXT("Lift/Drop"), IE_Pressed, this, &ThisClass::startLiftingProcess);
 	PlayerInputComponent->BindAction(TEXT("Lift/Drop"), IE_Released, this, &ThisClass::callDropObject);
-	PlayerInputComponent->BindAction(TEXT("Vanish/Appear"), IE_Pressed, this, &ThisClass::callSetActorVisibility);
 }
 //this function is responsible to call functions of m_MagicComponent that are related to lifting.
 void ACharacterBase::startLiftingProcess()
 {
 	if (m_MagicComponent)
 	{
-		AMagicalActor* ActorToLevitate{ m_MagicComponent->lineTraceFromCamera(this) };
+		AActor* ActorToLevitate{ m_MagicComponent->findObjectToLevitate(this) };
 		if (ActorToLevitate)
 		{
-			FVector LevitatingDirection{ FVector(0.f,0.f,1.f) };
-			//TODO:possibly change m_LiftHeight to a fvector that can be altered in UE viewport by exposing it in BP.
-			//the FVector ofc needs to be the property the actor we wanna levitate.
-			FVector LevitatingLocation{ ActorToLevitate->GetActorLocation() + (LevitatingDirection * m_LiftHeight) };
-			m_MagicComponent->setLevitatingValues(ActorToLevitate, LevitatingLocation);
+				FVector LevitatingDirection{ ActorToLevitate->GetActorUpVector() };
+				FVector LevitatingLocation{ ActorToLevitate->GetActorLocation() + (LevitatingDirection * m_LiftHeight) };
+				m_MagicComponent->setLevitatingValues(ActorToLevitate, LevitatingLocation);
 		}
 
 	}
 	else
-		UE_LOG(LogTemp, Warning, TEXT("m_MagicComponent is null(CharacterBase::calllineTraceFromCamera)"));
+		UE_LOG(LogTemp, Warning, TEXT("m_MagicComponent is null(CharacterBase::callfindObjectToLevitate)"));
 }
 void ACharacterBase::callDropObject()
 {
@@ -94,20 +90,6 @@ void ACharacterBase::callDropObject()
 	{
 		m_MagicComponent->dropObject();
 	}
-}
-void ACharacterBase::callSetActorVisibility()
-{
-	if (!m_MagicComponent)
-	{
-		UE_LOG(LogTemp, Error, TEXT("MagicComponent is null(ACharacterBase::callSetActorVisibility)"));
-		return;
-	}
-	AMagicalActor* MagicalActor{ m_MagicComponent->lineTraceFromCamera(this) };
-	if(MagicalActor)
-	m_MagicComponent->setActorVisibility(MagicalActor);
-	else 
-		UE_LOG(LogTemp, Error, TEXT("MagicalActor is null(ACharacterBase::callSetActorVisibility)"));
-
 }
 void ACharacterBase::MoveForward(float Value)
 {

@@ -7,7 +7,8 @@
 #include "Components/TimelineComponent.h"
 #include "MagicComponent.generated.h"
 
-class AMagicalActor;
+
+struct FTimeline;
 //this component is used to implement any kind of magic ability that can be cast.
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class STEALTHGAME_API UMagicComponent : public UActorComponent
@@ -21,28 +22,13 @@ public:
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	void setLevitatingValues(AActor* ActorToLevitate, const FVector& LiftLocation);
+	AActor* findObjectToLevitate(class ACharacterBase* PC);
 
-	//LEVITATING-SYSTEM FUNCTIONS.
-	void setLevitatingValues(AMagicalActor* ActorToLevitate, const FVector& LiftLocation);
-	
-	//END OF LEVITATING-SYSTEM FUNCTIONS.
-
-
-	//VANISHING-SYSTEM FUNCTIONS.
-
-	//used to vanish/appear objects.
-	bool setActorVisibility(AMagicalActor* MagicalActor);
-
-	//VANISHING-SYSTEM FUNCTIONS.
-
-	//used in different magic systems so we don't place it under any system comments.
-	AMagicalActor* lineTraceFromCamera(class ACharacterBase* PC);
 protected:
-
+	
 	// Called when the game starts
 	virtual void BeginPlay() override;
-
-	//LEVITATING-MAGIC PROPERTIES.
 
 	UPROPERTY(EditDefaultsOnly, Category = LevitatingMagic)
 		///used to see if there is an object to levitate within the range of player's viewpoint.
@@ -55,37 +41,18 @@ protected:
 		float m_LevitateSpeed{ 100.f };
 
 	bool m_bCanLevitate{ false };
-	//used to check if the levitated obj has reached the top point of levitation, so we can add jiggling movement to it.
-	bool m_bReachedPeakPoint{ false };
 
 	FTimeline m_LevitatingTimeline;
-
 	FVector m_LevitatingLocation{};
+	
+	//UPROPERTY()
+		AActor* m_ActorToLevitate;
 
-	FVector m_PeakLocation{};
-
-	UPROPERTY(EditDefaultsOnly)
-		float m_JiggleHeight{ 1500.f };
-
-	UPROPERTY(EditDefaultsOnly)
-		float m_JiggleMoveSpeed{ 5.f };
-
-	UPROPERTY()
-	AActor* m_ActorToLevitate{ nullptr };
-
-	class UStaticMeshComponent* m_LevitatedActorMesh{ nullptr };
-	//this function is called through the LevitatingTimeline Delegate.
+	//this function is called through the LiftingTimeline Delegate.
 	UFUNCTION()
-		void levitateOverTime(float Value);
-
-	void jiggleLevitatedObject();
+		void LevitateOverTime(float Value);
 
 	void dropObject();
-	//END OF LEVITATING PROPERTIES.
-
-
-	
-
 
 
 

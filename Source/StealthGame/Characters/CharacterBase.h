@@ -71,19 +71,10 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-
-	// THE FOLLOWING FUNCTIONS ARE SED TO CALL MAGICCOMPONENT FUNCTIONS.
-	
 	//
 	void startLiftingProcess();
 
-	
 	void callDropObject();
-
-	void callSetActorVisibility();
-
-	//END OF MAGICCOMPONENT-FUNCTIONS CALLERS.
-	
 	//end of binidings.
 
 
