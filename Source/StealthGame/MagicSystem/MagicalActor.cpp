@@ -97,7 +97,10 @@ void AMagicalActor::setMovementValues(const FVector& StartLocation, const FVecto
 	m_Destination = Destination;
 	
 }
-
+   /*
+	move to another specified location if m_bshouldMove is set by the player(by an actionBinding call),
+	the location and m_bshouldMove along with a few other params are all set in setMovementValues.
+	*/
 void AMagicalActor::Displace()
 {
 	if (m_bShouldMove)
@@ -118,6 +121,9 @@ void AMagicalActor::Displace()
 		}
 		
 		for any other possibility just set m_bshouldmove to false.*/
-		else m_bShouldMove = false;
+		else
+		{
+			m_bShouldMove = false;
+		}
 	}
 }

@@ -123,9 +123,11 @@ void ACharacterBase::callPullObject()
 		FVector PullDestination{ GetActorLocation() + (GetActorForwardVector() * m_DestinationOffSet) };
 		FVector Direction{ (PullDestination - MagicalActorToMove->GetActorLocation()).GetSafeNormal() };
 		FVector StartLocation{ MagicalActorToMove->GetActorLocation() };
-		//we want the actor to move in a straight line so we set the Z to its own.
-		//Direction.Z = 0.f;
-
+		//we want the actor to move in a straight line so we set the Z to 0, if the Z value of it is less than 40.
+		//while it sits on the ground it's 50 so that is why we are using the below magic numbers to see if it's between these two values. 
+		//TODO:make sure to change the approach to handle this, it's just for testing rn.
+		if (StartLocation.Z >= 40.f && StartLocation.Z <= 52.f)
+			Direction.Z = 0.f;
 		//DrawDebugLine(GetWorld(), MagicalActorToMove->GetActorLocation(), PullDestination, FColor::Red, false, 5.f, 0.f, 10.f);
 		//UE_LOG(LogTemp, Warning, TEXT("Direction = %s s"), *Direction.ToString());
 		m_MagicComponent->pullObject(MagicalActorToMove, StartLocation, Direction, PullDestination);

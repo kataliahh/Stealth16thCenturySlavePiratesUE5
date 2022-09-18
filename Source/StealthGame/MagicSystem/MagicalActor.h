@@ -34,6 +34,7 @@ protected:
 	//
 	UPROPERTY(EditAnywhere, meta = (MakeEditWidget = true), Category = Levitation)
 		FVector m_LevitationLocation {};
+
 	//m_LevitationLocation has a local value(relative to the actor),
 	//so we use the variable below as the global location of and use it.
 	FVector m_GlobalLevitationLocation{};
@@ -93,13 +94,10 @@ public:
 	///END OF LEVITATION.
 
 	//MOVEMENT.
-	//
+	//is called thrugh MagicComponent to set the values.
 	void setMovementValues(const FVector& StartLocation, const FVector& MoveDirection, const FVector& Destination);
 
-	/*
-	move to another specified location if m_bshouldMove is set by the player(by an actionBinding call),
-	the location and m_bshouldMove along with a few other params are all set in setMovementValues.
-	*/
+	//called when m_bShouldMove is set true(through MagicComponent by the player).
 	void Displace();
 	// END OF MOVEMENT.
 
