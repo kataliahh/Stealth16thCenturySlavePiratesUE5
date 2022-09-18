@@ -95,8 +95,7 @@ void AMagicalActor::setMovementValues(const FVector& StartLocation, const FVecto
 	m_StartLocation = StartLocation;
 	m_MovementDirection = MovementDirection;
 	m_Destination = Destination;
-	m_StaticMeshComponent->SetSimulatePhysics(false);
-
+	
 }
 
 void AMagicalActor::Displace()
@@ -108,9 +107,17 @@ void AMagicalActor::Displace()
 		//UE_LOG(LogTemp, Warning, TEXT("%f"), JourneyLength);
 		if (JourneyTravelled <= JourneyLength && (JourneyLength > MinimumJourneyLength) )
 		{
+			m_StaticMeshComponent->SetSimulatePhysics(false);
 			AddActorWorldOffset(m_MovementDirection * GetWorld()->GetDeltaSeconds() * m_MovementSpeed);
 		}
-		else
+		/*if we reached the destination.
+		else if(JourneyTravelled >= JourneyLength)
+		{
+			m_StaticMeshComponent->SetSimulatePhysics(true);
 			m_bShouldMove = false;
+		}
+		
+		for any other possibility just set m_bshouldmove to false.*/
+		else m_bShouldMove = false;
 	}
 }
