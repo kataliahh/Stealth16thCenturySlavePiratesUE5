@@ -6,11 +6,8 @@
 #include "GameFramework/Character.h"
 #include "CharacterBase.generated.h"
 
-class Um_CameraComponent;
-class Um_SpringArmComponent;
-
 UCLASS()
-class STEALTHGAME_API ACharacterBase : public ACharacter
+class ACharacterBase : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -33,15 +30,21 @@ public:
 	//
 	class UCameraComponent* getCameraComponent();
 
+	
+	
 
 
 protected:
 
 	//is multiplied by the upVector of the actor we wanna lift.
-	UPROPERTY(EditDefaultsOnly)
-		float m_LiftHeight{ 200.f };
+	UPROPERTY(EditDefaultsOnly, Category = Levitation)
+		float m_LevitationHeight{ 200.f };
 	//
-	bool m_bShouldLift{ true };
+	UPROPERTY(EditDefaultsOnly, Category = PullingActors)
+		//this variable is used to determine how far will the pulled MagicalActor be from the player.
+		float m_DestinationOffSet{ 100.f };
+	//
+	//bool m_bShouldLift{ true };
 	//Components
 	// 3rd person SpringArm
 	UPROPERTY(VisibleAnywhere)
@@ -72,18 +75,17 @@ protected:
 	virtual void BeginPlay() override;
 
 
-	// THE FOLLOWING FUNCTIONS ARE SED TO CALL MAGICCOMPONENT FUNCTIONS.
-	
+	// THE FOLLOWING FUNCTIONS ARE USED TO CALL MAGIC-COMPONENT FUNCTION.
 	//
 	void startLiftingProcess();
 
-	
 	void callDropObject();
 
 	void callSetActorVisibility();
 
-	//END OF MAGICCOMPONENT-FUNCTIONS CALLERS.
-	
+	void callPullObject();
+	//END OF MAGIC-COMPONENT-FUNCTION CALLERS.
+
 	//end of binidings.
 
 

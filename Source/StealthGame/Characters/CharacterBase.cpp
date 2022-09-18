@@ -9,6 +9,9 @@
 #include "StealthGame/InventorySystem/InventoryWidget.h"
 #include "StealthGame/MagicSystem/MagicComponent.h"
 #include "StealthGame/MagicSystem/MagicalActor.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Components/ArrowComponent.h"
+#include "DrawDebugHelpers.h"
 // Sets default values
 ACharacterBase::ACharacterBase()
 {
@@ -31,10 +34,11 @@ ACharacterBase::ACharacterBase()
 	m_CameraComp = CreateDefaultSubobject<UCameraComponent>("m_CameraComp");
 	m_CameraComp->SetupAttachment(m_SpringArmComp);
 	m_CameraComp->bUsePawnControlRotation = false;
-
 	m_InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
 	//
 	m_MagicComponent = CreateDefaultSubobject<UMagicComponent>(TEXT("MagicComponent"));
+	//
+
 }
 
 
@@ -68,6 +72,7 @@ void ACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction(TEXT("Lift/Drop"), IE_Pressed, this, &ThisClass::startLiftingProcess);
 	PlayerInputComponent->BindAction(TEXT("Lift/Drop"), IE_Released, this, &ThisClass::callDropObject);
 	PlayerInputComponent->BindAction(TEXT("Vanish/Appear"), IE_Pressed, this, &ThisClass::callSetActorVisibility);
+	PlayerInputComponent->BindAction(TEXT("Pull/Push"), IE_Pressed, this, &ThisClass::callPullObject);
 }
 //this function is responsible to call functions of m_MagicComponent that are related to lifting.
 void ACharacterBase::startLiftingProcess()
@@ -77,13 +82,12 @@ void ACharacterBase::startLiftingProcess()
 		AMagicalActor* ActorToLevitate{ m_MagicComponent->lineTraceFromCamera(this) };
 		if (ActorToLevitate)
 		{
-			FVector LevitatingDirection{ FVector(0.f,0.f,1.f) };
-			//TODO:possibly change m_LiftHeight to a fvector that can be altered in UE viewport by exposing it in BP.
-			//the FVector ofc needs to be the property the actor we wanna levitate.
-			FVector LevitatingLocation{ ActorToLevitate->GetActorLocation() + (LevitatingDirection * m_LiftHeight) };
-			m_MagicComponent->setLevitatingValues(ActorToLevitate, LevitatingLocation);
+			//FVector LevitatingDirection{ FVector(0.f,0.f,1.f) };
+			////TODO:possibly change m_LevitationHeight to a fvector that can be altered in UE viewport by exposing it in BP.
+			////the FVector ofc needs to be the property the actor we wanna levitate.
+			//FVector LevitatingLocation{ ActorToLevitate->GetActorLocation() + (LevitatingDirection * m_LevitationHeight) };
+			m_MagicComponent->setLevitatingValues(ActorToLevitate);
 		}
-
 	}
 	else
 		UE_LOG(LogTemp, Warning, TEXT("m_MagicComponent is null(CharacterBase::calllineTraceFromCamera)"));
@@ -103,10 +107,29 @@ void ACharacterBase::callSetActorVisibility()
 		return;
 	}
 	AMagicalActor* MagicalActor{ m_MagicComponent->lineTraceFromCamera(this) };
-	if(MagicalActor)
+
 	m_MagicComponent->setActorVisibility(MagicalActor);
-	else 
-		UE_LOG(LogTemp, Error, TEXT("MagicalActor is null(ACharacterBase::callSetActorVisibility)"));
+}
+void ACharacterBase::callPullObject()
+{
+	if (!m_MagicComponent)
+	{
+		UE_LOG(LogTemp, Error, TEXT("MagicalActor is null(ACharacterBase::callMoveObject)"));
+		return;
+	}
+	AMagicalActor* MagicalActorToMove = m_MagicComponent->lineTraceFromCamera(this);
+	if (MagicalActorToMove)
+	{
+		FVector PullDestination{ GetActorLocation() + (GetActorForwardVector() * m_DestinationOffSet) };
+		FVector Direction{ (PullDestination - MagicalActorToMove->GetActorLocation()).GetSafeNormal() };
+		FVector StartLocation{ MagicalActorToMove->GetActorLocation() };
+		//we want the actor to move in a straight line so we set the Z to its own.
+		//Direction.Z = 0.f;
+
+		//DrawDebugLine(GetWorld(), MagicalActorToMove->GetActorLocation(), PullDestination, FColor::Red, false, 5.f, 0.f, 10.f);
+		//UE_LOG(LogTemp, Warning, TEXT("Direction = %s s"), *Direction.ToString());
+		m_MagicComponent->pullObject(MagicalActorToMove, StartLocation, Direction, PullDestination);
+	}
 
 }
 void ACharacterBase::MoveForward(float Value)

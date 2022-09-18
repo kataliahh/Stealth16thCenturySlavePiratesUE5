@@ -16,30 +16,37 @@ class STEALTHGAME_API UMagicComponent : public UActorComponent
 		friend class ACharacterBase;
 
 public:
-	// Sets default values for this component's properties
+	// Sets default values for this component's properties.
 	UMagicComponent();
 
-	// Called every frame
+	// Called every frame.
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	//LEVITATING-SYSTEM FUNCTIONS.
-	void setLevitatingValues(AMagicalActor* ActorToLevitate, const FVector& LiftLocation);
+	void setLevitatingValues(AMagicalActor* ActorToLevitate);
 	
+	//calls Fall() on the LevitatedActor.
+	void dropObject();
 	//END OF LEVITATING-SYSTEM FUNCTIONS.
 
 
 	//VANISHING-SYSTEM FUNCTIONS.
 
-	//used to vanish/appear objects.
-	bool setActorVisibility(AMagicalActor* MagicalActor);
+	// calls setActorVisibiilty on the magic obj.
+	void setActorVisibility(AMagicalActor* MagicalActor);
 
 	//VANISHING-SYSTEM FUNCTIONS.
 
+	//this function is used to pull/push objects.
+	void pullObject(AMagicalActor* MagicalActorToMove, const FVector& StartLocation, const FVector& MoveDirection, const FVector& Destination);
+
+	void MoveObject();
+	//
 	//used in different magic systems so we don't place it under any system comments.
 	AMagicalActor* lineTraceFromCamera(class ACharacterBase* PC);
 protected:
-
-	// Called when the game starts
+	
+	// Called when the game starts.
 	virtual void BeginPlay() override;
 
 	//LEVITATING-MAGIC PROPERTIES.
@@ -48,46 +55,15 @@ protected:
 		///used to see if there is an object to levitate within the range of player's viewpoint.
 		float m_LineTraceRange{ 1000.f };
 
-	UPROPERTY(EditDefaultsOnly, Category = LevitatingMagic)
-		class UCurveFloat* m_liftingCurveFloat{ nullptr };
-
-	UPROPERTY(EditDefaultsOnly, Category = LevitatingMagic)
-		float m_LevitateSpeed{ 100.f };
-
-	bool m_bCanLevitate{ false };
-	//used to check if the levitated obj has reached the top point of levitation, so we can add jiggling movement to it.
-	bool m_bReachedPeakPoint{ false };
-
-	FTimeline m_LevitatingTimeline;
-
-	FVector m_LevitatingLocation{};
-
-	FVector m_PeakLocation{};
-
-	UPROPERTY(EditDefaultsOnly)
-		float m_JiggleHeight{ 1500.f };
-
-	UPROPERTY(EditDefaultsOnly)
-		float m_JiggleMoveSpeed{ 5.f };
-
 	UPROPERTY()
-	AActor* m_ActorToLevitate{ nullptr };
-
+		//stores the current/last levitated actor.
+		AMagicalActor* m_LevitatedActor {
+		nullptr
+	};
 	class UStaticMeshComponent* m_LevitatedActorMesh{ nullptr };
 	//this function is called through the LevitatingTimeline Delegate.
-	UFUNCTION()
-		void levitateOverTime(float Value);
 
-	void jiggleLevitatedObject();
-
-	void dropObject();
 	//END OF LEVITATING PROPERTIES.
-
-
-	
-
-
-
 
 
 };
