@@ -35,13 +35,14 @@ public:
 
 
 protected:
-
+	UPROPERTY(EditDefaultsOnly,Category = Pushing)
+		float m_PushDistance{ 500.f };
 	//is multiplied by the upVector of the actor we wanna lift.
 	UPROPERTY(EditDefaultsOnly, Category = Levitation)
 		float m_LevitationHeight{ 200.f };
 	//
-	UPROPERTY(EditDefaultsOnly, Category = PullingActors)
-		//this variable is used to determine how far will the pulled MagicalActor be from the player.
+	UPROPERTY(EditDefaultsOnly, Category = Pulling)
+		//this variable is used to determine how far will the destination of the pulled MagicalActor be from the player.
 		float m_DestinationOffSet{ 100.f };
 	//
 	//bool m_bShouldLift{ true };
@@ -84,6 +85,8 @@ protected:
 	void callSetActorVisibility();
 
 	void callPullObject();
+
+	void setPushingValues();
 	//END OF MAGIC-COMPONENT-FUNCTION CALLERS.
 
 	//end of binidings.

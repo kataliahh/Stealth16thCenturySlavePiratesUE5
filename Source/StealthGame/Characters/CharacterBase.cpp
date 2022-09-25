@@ -72,7 +72,9 @@ void ACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction(TEXT("Lift/Drop"), IE_Pressed, this, &ThisClass::startLiftingProcess);
 	PlayerInputComponent->BindAction(TEXT("Lift/Drop"), IE_Released, this, &ThisClass::callDropObject);
 	PlayerInputComponent->BindAction(TEXT("Vanish/Appear"), IE_Pressed, this, &ThisClass::callSetActorVisibility);
-	PlayerInputComponent->BindAction(TEXT("Pull/Push"), IE_Pressed, this, &ThisClass::callPullObject);
+	PlayerInputComponent->BindAction(TEXT("Pull"), IE_Pressed, this, &ThisClass::callPullObject);
+	PlayerInputComponent->BindAction(TEXT("Push"), IE_Pressed, this, &ThisClass::setPushingValues);
+
 }
 //this function is responsible to call functions of m_MagicComponent that are related to lifting.
 void ACharacterBase::startLiftingProcess()
@@ -132,7 +134,29 @@ void ACharacterBase::callPullObject()
 		//UE_LOG(LogTemp, Warning, TEXT("Direction = %s s"), *Direction.ToString());
 		m_MagicComponent->pullObject(MagicalActorToMove, StartLocation, Direction, PullDestination);
 	}
+}
+void ACharacterBase::setPushingValues()
+{
+	if (!m_MagicComponent)
+	{
+		UE_LOG(LogTemp, Error, TEXT("MagicalActor is null(ACharacterBase::callMoveObject)"));
+		return;
+	}
+	AMagicalActor* MagicalActorToMove = m_MagicComponent->lineTraceFromCamera(this);
+	if (MagicalActorToMove)
+	{
+		//TODO: have to change the way we handle the direction and stuff later, not the best way right now.
 
+		FVector MagicalActorLocation{ MagicalActorToMove->GetActorLocation() };
+		//gives us the location of char with the direction of where the player faces.
+		FVector CharLocationOffset{ getCameraComponent()->GetComponentLocation() + GetActorForwardVector()};
+		FVector Direction{ (MagicalActorLocation - CharLocationOffset).GetSafeNormal() };
+		FVector Destination{ MagicalActorLocation + (Direction * m_PushDistance) };
+		Direction.Z = 0.f;
+		//DrawDebugLine(GetWorld(), GetActorLocation(), d, FColor::Red, false, 5.f, 0.f, 10.f);
+
+		m_MagicComponent->pullObject(MagicalActorToMove, MagicalActorLocation, Direction, Destination);
+	}
 }
 void ACharacterBase::MoveForward(float Value)
 {

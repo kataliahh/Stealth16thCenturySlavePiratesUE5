@@ -110,3 +110,5 @@ void UMagicComponent::pullObject(AMagicalActor* MagicalActorToMove,const FVector
 
 
 
+
+
