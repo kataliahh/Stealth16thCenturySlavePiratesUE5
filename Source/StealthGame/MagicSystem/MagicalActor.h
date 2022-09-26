@@ -22,6 +22,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY()
+		class UMagicComponent* m_MagicComponent{ nullptr };
 	//VISIBILITY.
 	bool m_bIsVisible{ true };
 
@@ -39,15 +41,6 @@ protected:
 	//so we use the variable below as the global location of and use it.
 	FVector m_GlobalLevitationLocation{};
 
-	UPROPERTY(EditDefaultsOnly, Category = Levitation)
-		float m_LevitationSpeed{ 100.f };
-
-	UPROPERTY(EditDefaultsOnly, Category = Levitation)
-		//used to determine how up will the levitated obj move from the levitationLocation and come back.
-		float m_MaxHeight{ 50.f };
-	//
-	UPROPERTY(EditDefaultsOnly, Category = Levitation)
-		float m_SlowMovementSpeed{ 30.f };
 	//levitates itself if m_bShouldLevitate is set to true by the player((by an actionBinding call)). 
 	void levitate();
 
@@ -66,13 +59,8 @@ protected:
 	FVector m_MovementDirection{};
 	//
 	
-	UPROPERTY(EditDefaultsOnly, Category = Movement)
-		//used as the speed to Move The Object.
-		float m_MovementSpeed{ 100.f };
 
-	UPROPERTY(EditDefaultsOnly, Category = Movement)
-		//make sure that this value is at least as big as m_DestinationOffSet in CharacterBase.
-		float MinimumJourneyLength{ 250.f };
+	
 	 
 	//END OF MOVEMENT.
 

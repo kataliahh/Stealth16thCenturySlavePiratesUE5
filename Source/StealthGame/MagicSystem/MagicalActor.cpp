@@ -3,6 +3,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "StealthGame/Characters/CharacterBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "MagicComponent.h"
 // Sets default values
 AMagicalActor::AMagicalActor()
 {
@@ -16,6 +17,12 @@ void AMagicalActor::BeginPlay()
 {
 	Super::BeginPlay();
 	m_GlobalLevitationLocation = GetTransform().TransformPosition(m_LevitationLocation);
+	ACharacterBase* PlayerChar = Cast<ACharacterBase>(UGameplayStatics::GetPlayerCharacter(this, 0));
+	m_MagicComponent = PlayerChar->getMagicComponent();
+	if (!m_MagicComponent)
+	{
+		UE_LOG(LogTemp,Error,TEXT("m_MagicComponent is null (AMagicalActor::BeginPlay() )"))
+	}
 }
 // Called every frame
 void AMagicalActor::Tick(float DeltaTime)
@@ -28,13 +35,13 @@ void AMagicalActor::Tick(float DeltaTime)
 
 void AMagicalActor::levitate()
 {
-	if (m_bShouldLevitate)
+	if (m_bShouldLevitate && m_MagicComponent)
 	{
 
 		if (GetActorLocation().Z <= m_GlobalLevitationLocation.Z && !m_bReachedPeakPoint)
 		{
 			FVector Direction{ 0.f,0.f,1.f };
-			AddActorWorldOffset(Direction * GetWorld()->GetDeltaSeconds() * m_LevitationSpeed);
+			AddActorWorldOffset(Direction * GetWorld()->GetDeltaSeconds() * m_MagicComponent->m_LevitationSpeed);
 		}
 		else
 		{
@@ -45,23 +52,28 @@ void AMagicalActor::levitate()
 }
 void AMagicalActor::moveUpAndDown()
 {
+	if (!m_MagicComponent)
+	{
+		UE_LOG(LogTemp, Error, TEXT("m_MagicComponent is null (AMagicalActor::moveUpAndDown() )"))
+		return;
+	}
 	m_bReachedPeakPoint = true;
 	//since the whole movement happens in Z direction we will only work with Z value in this function.
 	static FVector Direction{ 0.f,0.f,1.f };
-	static FVector Destination{ m_GlobalLevitationLocation.X,m_GlobalLevitationLocation.Y,m_GlobalLevitationLocation.Z + m_MaxHeight };
+	static FVector Destination{ m_GlobalLevitationLocation.X,m_GlobalLevitationLocation.Y,m_GlobalLevitationLocation.Z + m_MagicComponent->m_MaxHeight };
 	FVector CurrentLocation{ GetActorLocation() };
 	if (CurrentLocation.Z >= Destination.Z)
 	{
 		Direction = { 0.f,0.f,-1.f };
-		UE_LOG(LogTemp, Warning, TEXT("-1 called"));
+		//UE_LOG(LogTemp, Warning, TEXT("-1 called"));
 	}
 	else if (CurrentLocation.Z <= m_GlobalLevitationLocation.Z)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("1 called"));
-		Direction = { 0.f,0.f,1.f };
+		//Direction = { 0.f,0.f,1.f };
 	}
 	//UE_LOG(LogTemp, Warning, TEXT("%s"), *Direction.ToString());
-	AddActorWorldOffset(Direction * GetWorld()->GetDeltaSeconds() * m_SlowMovementSpeed);
+	AddActorWorldOffset(Direction * GetWorld()->GetDeltaSeconds() * m_MagicComponent->m_SlowMovementSpeed);
 }
 
 void AMagicalActor::setActorVisibility()
@@ -95,23 +107,23 @@ void AMagicalActor::setMovementValues(const FVector& StartLocation, const FVecto
 	m_StartLocation = StartLocation;
 	m_MovementDirection = MovementDirection;
 	m_Destination = Destination;
-	
+
 }
-   /*
-	move to another specified location if m_bshouldMove is set by the player(by an actionBinding call),
-	the location and m_bshouldMove along with a few other params are all set in setMovementValues.
-	*/
+/*
+ move to another specified location if m_bshouldMove is set by the player(by an actionBinding call),
+ the location and m_bshouldMove along with a few other params are all set in setMovementValues.
+ */
 void AMagicalActor::Displace()
 {
-	if (m_bShouldMove)
+	if (m_bShouldMove && m_MagicComponent)
 	{
 		double JourneyLength{ (m_Destination - m_StartLocation).Size() };
 		double JourneyTravelled{ (GetActorLocation() - m_StartLocation).Size() };
 		//UE_LOG(LogTemp, Warning, TEXT("%f"), JourneyLength);
-		if (JourneyTravelled <= JourneyLength && (JourneyLength > MinimumJourneyLength) )
+		if (JourneyTravelled <= JourneyLength && (JourneyLength > m_MagicComponent->MinimumJourneyLength))
 		{
 			m_StaticMeshComponent->SetSimulatePhysics(false);
-			AddActorWorldOffset(m_MovementDirection * GetWorld()->GetDeltaSeconds() * m_MovementSpeed);
+			AddActorWorldOffset(m_MovementDirection * GetWorld()->GetDeltaSeconds() * m_MagicComponent->m_MovementSpeed);
 		}
 		/*if we reached the destination.
 		else if(JourneyTravelled >= JourneyLength)
@@ -119,7 +131,7 @@ void AMagicalActor::Displace()
 			m_StaticMeshComponent->SetSimulatePhysics(true);
 			m_bShouldMove = false;
 		}
-		
+
 		for any other possibility just set m_bshouldmove to false.*/
 		else
 		{

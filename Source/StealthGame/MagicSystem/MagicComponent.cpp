@@ -98,7 +98,7 @@ void UMagicComponent::setActorVisibility(AMagicalActor* MagicalActor)
 	MagicalActor->setActorVisibility();
 }
 
-void UMagicComponent::pullObject(AMagicalActor* MagicalActorToMove,const FVector& StartLocation, const FVector& MoveDirection, const FVector& Destination)
+void UMagicComponent::callSetMovementValues(AMagicalActor* MagicalActorToMove,const FVector& StartLocation, const FVector& MoveDirection, const FVector& Destination)
 {
 	if (!MagicalActorToMove)
 	{

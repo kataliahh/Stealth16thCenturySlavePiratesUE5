@@ -72,7 +72,7 @@ void ACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction(TEXT("Lift/Drop"), IE_Pressed, this, &ThisClass::startLiftingProcess);
 	PlayerInputComponent->BindAction(TEXT("Lift/Drop"), IE_Released, this, &ThisClass::callDropObject);
 	PlayerInputComponent->BindAction(TEXT("Vanish/Appear"), IE_Pressed, this, &ThisClass::callSetActorVisibility);
-	PlayerInputComponent->BindAction(TEXT("Pull"), IE_Pressed, this, &ThisClass::callPullObject);
+	PlayerInputComponent->BindAction(TEXT("Pull"), IE_Pressed, this, &ThisClass::callcallSetMovementValues);
 	PlayerInputComponent->BindAction(TEXT("Push"), IE_Pressed, this, &ThisClass::setPushingValues);
 
 }
@@ -112,7 +112,7 @@ void ACharacterBase::callSetActorVisibility()
 
 	m_MagicComponent->setActorVisibility(MagicalActor);
 }
-void ACharacterBase::callPullObject()
+void ACharacterBase::callcallSetMovementValues()
 {
 	if (!m_MagicComponent)
 	{
@@ -122,7 +122,7 @@ void ACharacterBase::callPullObject()
 	AMagicalActor* MagicalActorToMove = m_MagicComponent->lineTraceFromCamera(this);
 	if (MagicalActorToMove)
 	{
-		FVector PullDestination{ GetActorLocation() + (GetActorForwardVector() * m_DestinationOffSet) };
+		FVector PullDestination{ GetActorLocation() + (GetActorForwardVector() * m_MagicComponent->m_DestinationOffSet) };
 		FVector Direction{ (PullDestination - MagicalActorToMove->GetActorLocation()).GetSafeNormal() };
 		FVector StartLocation{ MagicalActorToMove->GetActorLocation() };
 		//we want the actor to move in a straight line so we set the Z to 0, if the Z value of it is less than 40.
@@ -132,7 +132,7 @@ void ACharacterBase::callPullObject()
 			Direction.Z = 0.f;
 		//DrawDebugLine(GetWorld(), MagicalActorToMove->GetActorLocation(), PullDestination, FColor::Red, false, 5.f, 0.f, 10.f);
 		//UE_LOG(LogTemp, Warning, TEXT("Direction = %s s"), *Direction.ToString());
-		m_MagicComponent->pullObject(MagicalActorToMove, StartLocation, Direction, PullDestination);
+		m_MagicComponent->callSetMovementValues(MagicalActorToMove, StartLocation, Direction, PullDestination);
 	}
 }
 void ACharacterBase::setPushingValues()
@@ -151,11 +151,11 @@ void ACharacterBase::setPushingValues()
 		//gives us the location of char with the direction of where the player faces.
 		FVector CharLocationOffset{ getCameraComponent()->GetComponentLocation() + GetActorForwardVector()};
 		FVector Direction{ (MagicalActorLocation - CharLocationOffset).GetSafeNormal() };
-		FVector Destination{ MagicalActorLocation + (Direction * m_PushDistance) };
+		FVector Destination{ MagicalActorLocation + (Direction * m_MagicComponent->m_PushDistance) };
 		Direction.Z = 0.f;
 		//DrawDebugLine(GetWorld(), GetActorLocation(), d, FColor::Red, false, 5.f, 0.f, 10.f);
 
-		m_MagicComponent->pullObject(MagicalActorToMove, MagicalActorLocation, Direction, Destination);
+		m_MagicComponent->callSetMovementValues(MagicalActorToMove, MagicalActorLocation, Direction, Destination);
 	}
 }
 void ACharacterBase::MoveForward(float Value)
